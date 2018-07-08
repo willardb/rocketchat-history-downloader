@@ -1,0 +1,10 @@
+[files]
+history_output_dir = ./history-files/
+history_statefile = rocketchat-history-statefile.pkl
+
+[rc-api]
+user = username_goes_here
+pass = pwd_goes_here
+server = https://demo.rocket.chat
+max_msg_count_per_day = 99999
+pause_seconds = 1
