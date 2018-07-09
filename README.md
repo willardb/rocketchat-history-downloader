@@ -20,7 +20,8 @@ Install requirements from Pipfile
 Create and update settings.cfg
 
     $ cp settings.cfg.EXAMPLE settings.cfg
-    
+
+Example settings: 
 ```
 [files]
 history_output_dir = ./history-files/
@@ -36,7 +37,8 @@ pause_seconds = 1
 
 ## Usage
 
-Download all not-previously-downloaded history for all joined channels, private groups, and direct messages. Updates state file to note what has been downloaded so that it won't be downloaded again upon subsequent executions.
+Download all not-previously-downloaded history for all joined channels, private groups, and direct messages.
+>Note: this updates the state file to record what has been downloaded so that it won't be downloaded again upon subsequent executions.
 
 ```
 pipenv run python export-history.py settings.cfg
