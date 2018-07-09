@@ -41,6 +41,17 @@ import configparser
 # Initialize stuff
 #
 VERSION = 1.1
+
+date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+short_date_format = "%Y-%m-%d"
+one_day = datetime.timedelta(days=1)
+today = datetime.datetime.today()
+yesterday = today - one_day
+null_date = datetime.datetime(1, 1, 1, 0, 0, 0, 0)
+room_state = {}
+
+
+# args
 argparser_main = argparse.ArgumentParser()
 argparser_main.add_argument('configfile', help='Location of configuration file')
 argparser_main.add_argument('-s', '--datestart', help='Datetime to use for global starting point e.g. 2016-01-01 (implied T00:00:00.000Z)')
@@ -48,24 +59,13 @@ argparser_main.add_argument('-e', '--dateend', help='Datetime to use for global 
 argparser_main.add_argument('-r', '--readonlystate', help='Do not create or update history state file.', action="store_true")
 args = argparser_main.parse_args()
 
+start_time = datetime.datetime.strptime(args.datestart,short_date_format).replace(hour=0, minute=0, second=0, microsecond=0) if args.datestart else None
+end_time = datetime.datetime.strptime(args.dateend,short_date_format).replace(hour=23, minute=59, second=59, microsecond=999999) if args.dateend else yesterday.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+
+# config
 config_main = configparser.ConfigParser()
 config_main.read(args.configfile)
-
-logger = logging.getLogger('export-history')
-logger.setLevel(logging.DEBUG)
-# create file handler which logs even debug messages
-fh = logging.FileHandler('export-history.log')
-fh.setLevel(logging.DEBUG)
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(fh)
-logger.addHandler(ch)
 
 polite_pause = int(config_main['rc-api']['pause_seconds'])
 count_max = int(config_main['rc-api']['max_msg_count_per_day'])
@@ -76,17 +76,24 @@ rc_user = config_main['rc-api']['user']
 rc_pass = config_main['rc-api']['pass']
 rc_server = config_main['rc-api']['server']
 
-room_state = {}
 
-date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
-short_date_format = "%Y-%m-%d"
-one_day = datetime.timedelta(days=1)
-today = datetime.datetime.today()
-yesterday = today - one_day
-null_date = datetime.datetime(1, 1, 1, 0, 0, 0, 0)
+# logging
+logger = logging.getLogger('export-history')
+logger.setLevel(logging.DEBUG)
 
-start_time = datetime.datetime.strptime(args.datestart,short_date_format).replace(hour=0, minute=0, second=0, microsecond=0) if args.datestart else None
-end_time = datetime.datetime.strptime(args.dateend,short_date_format).replace(hour=23, minute=59, second=59, microsecond=999999) if args.dateend else yesterday.replace(hour=23, minute=59, second=59, microsecond=999999)
+fh = logging.FileHandler('export-history.log')
+fh.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+
+logger.addHandler(fh)
+logger.addHandler(ch)
+
 
 #
 # Functions
