@@ -2,6 +2,8 @@
 
 Downloads and stores raw JSON channel history for joined channels, private groups, and direct messages. Keeps track of what has already been downloaded and supports ongoing periodic retrieval of new history.
 
+Stores one JSON history file per channel per day in a directory of your choice.
+
 ## Getting Started
 
 ### Prerequisites
