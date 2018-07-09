@@ -16,6 +16,10 @@ Downloads and stores raw JSON channel history for joined channels, private group
 Install requirements from Pipfile
 
     $ pipenv install
+    
+Create a directory to store downloaded history files
+
+    $ mkdir history-files
 
 Create and update settings.cfg
 
