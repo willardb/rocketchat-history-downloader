@@ -8,7 +8,7 @@ Downloads and stores raw JSON channel history for joined channels, private group
 
 * Python >= 3.5
   * [Pipenv](https://github.com/pypa/pipenv), ideally
-  * [rocketchat_API](https://github.com/jadolg/rocketchat_API)
+  * [rocketchat_API](https://github.com/jadolg/rocketchat_API) Python API wrapper for Rocket.Chat 
 * A user account on a [Rocket.Chat](https://rocket.chat/) server that exposes its REST API
 
 ### Installing
