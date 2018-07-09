@@ -60,3 +60,6 @@ Run a one-off download of history for a specific time period and do not store la
 pipenv run python export-history.py -s 2000-01-01 -e 2018-01-01 -r settings.cfg
 ```
 
+### Logging
+
+By default, debug and info output from any execution is written to the console and logged to a file called export-history.log
