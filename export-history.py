@@ -214,7 +214,7 @@ for channel_id,channel_data in room_state.items():
             logger.info('Messages found: ' + str(num_messages))
             
             if num_messages > 0:
-                with open(output_dir + t_oldest.strftime('%Y-%m-%d') + '-' + channel_data['name'] + '.json','w') as f:
+                with open(output_dir + t_oldest.strftime('%Y-%m-%d') + '-' + channel_data['name'] + '.json','wb') as f:
                      f.write(history_data_text.encode('utf-8').strip())
                 sleep(polite_pause)
             elif num_messages > count_max:
