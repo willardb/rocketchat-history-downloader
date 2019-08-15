@@ -111,7 +111,12 @@ def assemble_state(state_array,room_json,room_type):
                 'lastsaved': null_date,
                 'begintime':datetime.datetime.strptime(channel['ts'], date_format).replace(hour=0, minute=0, second=0, microsecond=0)
             }
-        state_array[channel['_id']]['lastmessage'] = datetime.datetime.strptime(channel['lm'], date_format)
+        # Channel with no messages don't have a lm field
+        if channel.get('lm'):
+            lm = datetime.datetime.strptime(channel['lm'], date_format)
+        else:
+            lm = null_date
+        state_array[channel['_id']]['lastmessage'] = lm
         
 def upgrade_state_schema(state_array,old_schema_version):
     cur_schema_version = old_schema_version
