@@ -36,6 +36,7 @@ import logging
 import pprint
 import argparse
 import configparser
+import re
 
 #
 # Initialize stuff
@@ -158,13 +159,20 @@ else:
     logger.debug('No state file at ' + state_file + ', so state will be created')
     room_state = {'_meta': {'schema_version': VERSION}}
 
+
 logger.debug('Initialize rocket.chat API connection')
 rocket = RocketChat(rc_user, rc_pass, server_url=rc_server)
+sleep(polite_pause)
 
 logger.debug('LOAD / UPDATE room state')
 assemble_state(room_state, rocket.channels_list_joined().json(), 'channels')
+sleep(polite_pause)
+
 assemble_state(room_state, rocket.im_list().json(), 'ims')
+sleep(polite_pause)
+
 assemble_state(room_state, rocket.groups_list().json(), 'groups')
+sleep(polite_pause)
 
 
 for channel_id, channel_data in room_state.items():
@@ -201,15 +209,42 @@ for channel_id, channel_data in room_state.items():
             logger.info('start: ' + get_rocketchat_timestamp(t_oldest))
 
             history_data_obj = {}
-            if (channel_data['type'] == 'channels'):
-                history_data_obj = rocket.channels_history(channel_id, count=count_max, include='true', latest=get_rocketchat_timestamp(t_latest), oldest=get_rocketchat_timestamp(t_oldest))
-            elif (channel_data['type'] == 'ims'):
-                history_data_obj = rocket.im_history(channel_id, count=count_max, include='true', latest=get_rocketchat_timestamp(t_latest), oldest=get_rocketchat_timestamp(t_oldest))
-            elif (channel_data['type'] == 'groups'):
-                history_data_obj = rocket.groups_history(channel_id, count=count_max, include='true', latest=get_rocketchat_timestamp(t_latest), oldest=get_rocketchat_timestamp(t_oldest))
-
-            history_data = history_data_obj.json()
-            history_data_text = history_data_obj.text
+            retry_flag = True
+            retry_count = 0
+            
+            while retry_flag:
+                retry_count += 1
+                logger.debug('invoking API to get messages (attempt %d)', retry_count)
+                if (channel_data['type'] == 'channels'):
+                    history_data_obj = rocket.channels_history(channel_id, count=count_max, include='true', latest=get_rocketchat_timestamp(t_latest), oldest=get_rocketchat_timestamp(t_oldest))
+                elif (channel_data['type'] == 'ims'):
+                    history_data_obj = rocket.im_history(channel_id, count=count_max, include='true', latest=get_rocketchat_timestamp(t_latest), oldest=get_rocketchat_timestamp(t_oldest))
+                elif (channel_data['type'] == 'groups'):
+                    history_data_obj = rocket.groups_history(channel_id, count=count_max, include='true', latest=get_rocketchat_timestamp(t_latest), oldest=get_rocketchat_timestamp(t_oldest))
+    
+                history_data = history_data_obj.json()
+                history_data_text = history_data_obj.text
+                
+                if history_data['success'] == False:
+                    error_text = history_data['error']
+                    logger.error('Error response from API endpoint: %s',error_text)
+                    if "error-too-many-requests" in error_text:
+                        seconds_search = re.search('must wait (\d+) seconds', error_text, re.IGNORECASE)
+                        if seconds_search:
+                            seconds_to_wait = seconds_search.group(1)
+                            if seconds_to_wait < 300:
+                                polite_pause += seconds_to_wait if seconds_to_wait < polite_pause else polite_pause
+                                logger.error('Attempting handle API rate limit error by sleeping for %d and updating polite_pause to %d for the duration of this execution', seconds_to_wait, polite_pause)
+                                sleep(seconds_to_wait)
+                            else:
+                                raise Exception("Unresonable amount of time to wait for API rate limit")
+                        else:
+                            raise Exception("Can not parse too-many-requests error message")
+                    else:
+                        raise Exception("Untrapped error response from history API: {error_text}".format(error_text=error_text))
+                else:
+                    retry_flag = False
+                        
 
             num_messages = len(history_data['messages'])
             logger.info('Messages found: ' + str(num_messages))
@@ -217,7 +252,6 @@ for channel_id, channel_data in room_state.items():
             if num_messages > 0:
                 with open(output_dir + t_oldest.strftime('%Y-%m-%d') + '-' + channel_data['name'] + '.json', 'wb') as f:
                     f.write(history_data_text.encode('utf-8').strip())
-                sleep(polite_pause)
             elif num_messages > count_max:
                 logger.error('Too many messages for this room today. SKIPPING.')
 
