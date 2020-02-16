@@ -231,7 +231,7 @@ for channel_id, channel_data in room_state.items():
                     if "error-too-many-requests" in error_text:
                         seconds_search = re.search('must wait (\d+) seconds', error_text, re.IGNORECASE)
                         if seconds_search:
-                            seconds_to_wait = seconds_search.group(1)
+                            seconds_to_wait = int(seconds_search.group(1))
                             if seconds_to_wait < 300:
                                 polite_pause += seconds_to_wait if seconds_to_wait < polite_pause else polite_pause
                                 logger.error('Attempting handle API rate limit error by sleeping for %d and updating polite_pause to %d for the duration of this execution', seconds_to_wait, polite_pause)
