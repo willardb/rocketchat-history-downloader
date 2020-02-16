@@ -176,24 +176,24 @@ def main():
     logger.addHandler(ch)
     room_state = {}
 
-    logger.info('BEGIN execution at ' + str(datetime.datetime.today()))
-    logger.debug('Command line arguments: ' + pprint.pformat(args))
+    logger.info('BEGIN execution at %s', str(datetime.datetime.today()))
+    logger.debug('Command line arguments: %s', pprint.pformat(args))
 
     if args.readonlystate:
         logger.info('Running in readonly state mode. No state file updates.')
 
     if os.path.isfile(state_file):
-        logger.debug('LOAD state from ' + state_file)
+        logger.debug('LOAD state from %s', state_file)
         sf = open(state_file, 'rb')
         room_state = pickle.load(sf)
         sf.close()
-        logger.debug('\n' + pprint.pformat(room_state))
+        logger.debug('\n%s', pprint.pformat(room_state))
         schema_version = 1.0 if '_meta' not in room_state else room_state['_meta']['schema_version']
         if schema_version < VERSION:
             upgrade_state_schema(room_state, schema_version, logger)
 
     else:
-        logger.debug('No state file at ' + state_file + ', so state will be created')
+        logger.debug('No state file at %s, so state will be created', state_file)
         room_state = {'_meta': {'schema_version': VERSION}}
 
 
@@ -217,11 +217,11 @@ def main():
             logger.info('------------------------')
             logger.info('Processing room: ' + channel_id + ' - ' + channel_data['name'])
 
-            logger.debug('Global start time: ' + str(start_time))
-            logger.debug('Global end time: ' + str(end_time))
-            logger.debug('Room start ts: ' + str(channel_data['begintime']))
-            logger.debug('Last message: ' + str(channel_data['lastmessage']))
-            logger.debug('Last saved: '+ str(channel_data['lastsaved']))
+            logger.debug('Global start time: %s', str(start_time))
+            logger.debug('Global end time: %s', str(end_time))
+            logger.debug('Room start ts: %s', str(channel_data['begintime']))
+            logger.debug('Last message: %s', str(channel_data['lastmessage']))
+            logger.debug('Last saved: %s ', str(channel_data['lastsaved']))
 
             if start_time is not None:
                 # use globally specified start time but if the start time
@@ -252,7 +252,7 @@ def main():
             while (t_oldest < end_time) and (t_oldest < channel_data['lastmessage']):
                 logger.info('')
                 t_latest = t_oldest + ONE_DAY - datetime.timedelta(microseconds=1)
-                logger.info('start: ' + get_rocketchat_timestamp(t_oldest))
+                logger.info('start: %s', get_rocketchat_timestamp(t_oldest))
 
                 history_data_obj = {}
                 retry_flag = True
@@ -290,7 +290,7 @@ def main():
                         error_text = history_data['error']
                         logger.error('Error response from API endpoint: %s', error_text)
                         if 'error-too-many-requests' in error_text:
-                            seconds_search = re.search('must wait (\d+) seconds',
+                            seconds_search = re.search(r'must wait (\d+) seconds',
                                                        error_text,
                                                        re.IGNORECASE)
                             if seconds_search:
@@ -299,9 +299,9 @@ def main():
                                     polite_pause += seconds_to_wait \
                                     if seconds_to_wait < polite_pause \
                                     else polite_pause
-                                    logger.error('Attempting handle API rate limit error by '
-                                                 + 'sleeping for %d and updating polite_pause '
-                                                 + 'to %d for the duration of this execution',
+                                    logger.error('Attempting handle API rate limit error by \
+                                                 sleeping for %d and updating polite_pause \
+                                                 to %d for the duration of this execution',
                                                  seconds_to_wait, polite_pause)
                                     sleep(seconds_to_wait)
                                 else:
@@ -318,7 +318,7 @@ def main():
 
 
                 num_messages = len(history_data['messages'])
-                logger.info('Messages found: ' + str(num_messages))
+                logger.info('Messages found: %s', str(num_messages))
 
                 if num_messages > 0:
                     with open(output_dir
@@ -330,7 +330,7 @@ def main():
                 elif num_messages > count_max:
                     logger.error('Too many messages for this room today. SKIPPING.')
 
-                logger.info('end: ' + get_rocketchat_timestamp(t_latest))
+                logger.info('end: %s', get_rocketchat_timestamp(t_latest))
                 logger.info('')
                 t_oldest += ONE_DAY
                 sleep(polite_pause)
@@ -348,16 +348,15 @@ def main():
 
     if not args.readonlystate:
         logger.debug('UPDATE state file')
-        logger.debug('\n' + pprint.pformat(room_state))
+        logger.debug('\n%s', pprint.pformat(room_state))
         sf = open(state_file, 'wb')
         pickle.dump(room_state, sf)
         sf.close()
     else:
         logger.debug('Running in readonly state mode: SKIP updating state file')
 
-    logger.info('END execution at '
-                + str(datetime.datetime.today())
-                + '\n------------------------\n\n')
+    logger.info('END execution at %s\n------------------------\n\n',
+                str(datetime.datetime.today()))
 
 if __name__ == "__main__":
     main()
