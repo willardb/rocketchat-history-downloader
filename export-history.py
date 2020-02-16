@@ -260,8 +260,13 @@ for channel_id, channel_data in room_state.items():
             t_oldest += one_day
             sleep(polite_pause)
 
-        room_state[channel_id]['lastsaved'] = t_latest if t_latest > room_state[channel_id]['lastsaved'] else room_state[channel_id]['lastsaved']
         logger.info('------------------------\n')
+        
+    # I am changing what 'lastsaved' means here. It used to denote the last time a file was actually saved to disk for this channel
+    # but I think it is more useful if it represents the maximum time for which the channel has been checked. this will reduce lots
+    # of unnecessary day checks if a channel is dormant for a while and then suddenly has a message in it.
+    # This is only helpful if the history export script is run on a periodic basis. 
+    room_state[channel_id]['lastsaved'] = end_time
 
 if not args.readonlystate:
     logger.debug('UPDATE state file')
