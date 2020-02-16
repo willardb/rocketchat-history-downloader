@@ -161,7 +161,6 @@ def main():
 
     # logging
     logger = logging.getLogger('export-history')
-    logger.setLevel(logging.DEBUG)
 
     fh = logging.FileHandler('export-history.log')
     fh.setLevel(logging.DEBUG)
