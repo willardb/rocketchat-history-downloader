@@ -161,6 +161,7 @@ def main():
 
     # logging
     logger = logging.getLogger('export-history')
+    logger.setLevel(logging.DEBUG)
 
     fh = logging.FileHandler('export-history.log')
     fh.setLevel(logging.DEBUG)
@@ -174,6 +175,8 @@ def main():
 
     logger.addHandler(fh)
     logger.addHandler(ch)
+    logger.propagate = False
+    
     room_state = {}
 
     logger.info('BEGIN execution at %s', str(datetime.datetime.today()))
