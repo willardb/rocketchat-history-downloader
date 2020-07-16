@@ -5,8 +5,3 @@ name = "pypi"
 
 [packages]
 rocketchat-api = "*"
-
-[dev-packages]
-
-[requires]
-python_version = "3.5"

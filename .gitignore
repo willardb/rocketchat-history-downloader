@@ -43,5 +43,6 @@ history-files/*
 *.pkl
 *.log
 
-
+# pipenv stuff
+Pipfile.lock
 

@@ -15,7 +15,7 @@ Stores one JSON history file per channel per day in a directory of your choice.
 
 ### Installing
 
-Install requirements from Pipfile
+Install requirements from Pipfile (assuming you have [Pipenv](https://github.com/pypa/pipenv) installed already)
 
     $ pipenv install
     
