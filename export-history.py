@@ -268,21 +268,21 @@ def main():
                         history_data_obj = rocket.channels_history(
                             channel_id,
                             count=count_max,
-                            include='true',
+                            inclusive='true',
                             latest=get_rocketchat_timestamp(t_latest),
                             oldest=get_rocketchat_timestamp(t_oldest))
                     elif channel_data['type'] == 'ims':
                         history_data_obj = rocket.im_history(
                             channel_id,
                             count=count_max,
-                            include='true',
+                            inclusive='true',
                             latest=get_rocketchat_timestamp(t_latest),
                             oldest=get_rocketchat_timestamp(t_oldest))
                     elif channel_data['type'] == 'groups':
                         history_data_obj = rocket.groups_history(
                             channel_id,
                             count=count_max,
-                            include='true',
+                            inclusive='true',
                             latest=get_rocketchat_timestamp(t_latest),
                             oldest=get_rocketchat_timestamp(t_oldest))
 
